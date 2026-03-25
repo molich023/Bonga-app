@@ -1,0 +1,30 @@
+const { Pool } = require('pg');
+
+exports.handler = async (event) => {
+  const { email } = JSON.parse(event.body);
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL, // NeonDB URL
+    ssl: { rejectUnauthorized: false },
+  });
+
+  try {
+    // Insert user into NeonDB
+    await pool.query(
+      `INSERT INTO users (email, bonga_points)
+       VALUES ($1, 10)  -- Give 10 points for signing up
+       ON CONFLICT (email) DO NOTHING`,
+      [email]
+    );
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ message: 'User saved!', points: 10 }),
+    };
+  } catch (err) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: err.message }),
+    };
+  } finally {
+    await pool.end();
+  }
+};
