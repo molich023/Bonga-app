@@ -1,23 +1,30 @@
 [build]
-  command = "flutter build web"
+  command = "flutter build web --release"
   publish = "build/web"
   base = "/"
 
 [build.environment]
   FLUTTER_VERSION = "3.10.0"
+  DART_VERSION = "3.0.0"
+  NODE_VERSION = "18"
 
-[[redirects]]
-  from = "/chat/*"
-  to = "/index.html"
-  status = 200
+# Flutter Plugin (handles SDK installation)
+[[plugins]]
+  package = "@netlify/plugin-flutter"
+  [plugins.inputs]
+    version = "3.10.0"
 
-[[redirects]]
-  from = "/rewards/*"
-  to = "/index.html"
-  status = 200
+# Cache Flutter dependencies
+[[plugins]]
+  package = "@netlify/plugin-cache"
+  [plugins.inputs]
+    paths = [
+      ".pub-cache",
+      "build/web",
+    ]
 
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline';"
+# Lighthouse Plugin (optional for SEO)
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
+  [plugins.inputs]
+    outputPath = "reports/lighthouse.html"
