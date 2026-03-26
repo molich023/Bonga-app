@@ -1,0 +1,28 @@
+name: MythX Deep Analysis
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  mythx:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Install MythX CLI
+        run: npm install -g truffle @mythx/js
+      - name: Run MythX
+        run: npx truffle run mythx
+        env:
+          MYTHX_API_KEY: ${{ secrets.MYTHX_API_KEY }}
+      - name: Upload Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: mythx-report
+          path: mythx_report.txt
